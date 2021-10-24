@@ -1,0 +1,236 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "7aed9e96",
+   "metadata": {},
+   "source": [
+    "## Import Dependencies for Data Cleaning, Cosine Similarity"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 51,
+   "id": "6d94e2f3",
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "[nltk_data] Downloading package stopwords to C:\\Users\\Gabriel\n",
+      "[nltk_data]     Graves\\AppData\\Roaming\\nltk_data...\n",
+      "[nltk_data]   Package stopwords is already up-to-date!\n"
+     ]
+    },
+    {
+     "data": {
+      "text/plain": [
+       "True"
+      ]
+     },
+     "execution_count": 51,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "import pandas as pd\n",
+    "import numpy as np\n",
+    "from sklearn.feature_extraction.text import CountVectorizer\n",
+    "from sklearn.metrics.pairwise import cosine_similarity \n",
+    "from nltk.corpus import stopwords\n",
+    "import nltk\n",
+    "nltk.download('stopwords')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "420a0e3e",
+   "metadata": {},
+   "source": [
+    "## Import and Declare Dependencies for Webscraping"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 52,
+   "id": "05a0fa55",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Requirement already satisfied: beautifulsoup4 in c:\\users\\gabriel graves\\anaconda3\\lib\\site-packages (4.9.3)\n",
+      "Requirement already satisfied: soupsieve>1.2 in c:\\users\\gabriel graves\\anaconda3\\lib\\site-packages (from beautifulsoup4) (2.2.1)\n",
+      "Requirement already satisfied: requests in c:\\users\\gabriel graves\\anaconda3\\lib\\site-packages (2.25.1)\n",
+      "Requirement already satisfied: soupsieve in c:\\users\\gabriel graves\\anaconda3\\lib\\site-packages (2.2.1)\n",
+      "Requirement already satisfied: lxml in c:\\users\\gabriel graves\\anaconda3\\lib\\site-packages (4.6.3)\n",
+      "Requirement already satisfied: urllib3<1.27,>=1.21.1 in c:\\users\\gabriel graves\\anaconda3\\lib\\site-packages (from requests) (1.26.4)\n",
+      "Requirement already satisfied: idna<3,>=2.5 in c:\\users\\gabriel graves\\anaconda3\\lib\\site-packages (from requests) (2.10)\n",
+      "Requirement already satisfied: certifi>=2017.4.17 in c:\\users\\gabriel graves\\anaconda3\\lib\\site-packages (from requests) (2020.12.5)\n",
+      "Requirement already satisfied: chardet<5,>=3.0.2 in c:\\users\\gabriel graves\\anaconda3\\lib\\site-packages (from requests) (4.0.0)\n"
+     ]
+    }
+   ],
+   "source": [
+    "!pip install beautifulsoup4\n",
+    "!pip install requests soupsieve lxml\n",
+    "# -*- coding: utf-8 -*- \n",
+    "from bs4 import BeautifulSoup \n",
+    "import requests\n",
+    "from urllib.request import urlparse, urljoin\n",
+    "#change to current user's website header\n",
+    "headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.71 Safari/537.36'}\n",
+    "#url for general product category (ex: sofas, beds, coffeetables)\n",
+    "url = 'https://www.wayfair.com/furniture/sb0/sofas-c413892.html?itemsperpage=96'\n",
+    "response=requests.get(url,headers=headers)\n",
+    "soup = BeautifulSoup(response.content,'lxml')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d6807e34",
+   "metadata": {},
+   "source": [
+    "## Webscraping On Set URL"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 60,
+   "id": "5fd43dbe",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "---------------------------\n",
+      "$399.99\n",
+      "From $337.00\n",
+      "5600\n",
+      "---------------------------\n",
+      "\n",
+      "---------------------------\n",
+      "\n",
+      "---------------------------\n",
+      "$1,350.00\n",
+      "From $870.00\n",
+      "4367\n",
+      "---------------------------\n",
+      "$599.00\n",
+      "From $323.99\n",
+      "158\n",
+      "---------------------------\n",
+      "$949.99\n",
+      "From $571.00\n",
+      "302\n",
+      "---------------------------\n",
+      "\n",
+      "---------------------------\n",
+      "\n",
+      "---------------------------\n",
+      "\n",
+      "---------------------------\n",
+      "\n",
+      "---------------------------\n",
+      "$249.99\n",
+      "From $223.99\n",
+      "5777\n",
+      "\n",
+      "---------------------------\n",
+      "\n",
+      "                                   name      price  \\\n",
+      "0         Garren 75.6'' Square Arm Sofa    $399.99   \n",
+      "1             Lark 84'' Square Arm Sofa  $1,350.00   \n",
+      "2  Lisette 47'' Velvet Armless Loveseat    $599.00   \n",
+      "3          Cheatham 79'' Round Arm Sofa    $949.99   \n",
+      "\n",
+      "                                      rating  \\\n",
+      "0  Rated 4.5 out of 5 stars.5600 total votes   \n",
+      "1  Rated 4.5 out of 5 stars.4367 total votes   \n",
+      "2   Rated 4.5 out of 5 stars.158 total votes   \n",
+      "3   Rated 4.5 out of 5 stars.302 total votes   \n",
+      "\n",
+      "                                                 url  \\\n",
+      "0  https://www.wayfair.com/furniture/pdp/mercury-...   \n",
+      "1  https://www.wayfair.com/furniture/pdp/allmoder...   \n",
+      "2  https://www.wayfair.com/furniture/pdp/etta-ave...   \n",
+      "3  https://www.wayfair.com/furniture/pdp/kelly-cl...   \n",
+      "\n",
+      "                                               image  \n",
+      "0  https://secure.img1-fg.wfcdn.com/im/37846643/r...  \n",
+      "1  https://secure.img1-fg.wfcdn.com/im/28009906/r...  \n",
+      "2  https://secure.img1-fg.wfcdn.com/im/02662091/r...  \n",
+      "3  https://secure.img1-fg.wfcdn.com/im/17751109/r...  \n"
+     ]
+    }
+   ],
+   "source": [
+    "df = pd.DataFrame()\n",
+    "data = []\n",
+    "for item in soup.select('.ProductCard-container'):\n",
+    "   try:\n",
+    "    print('---------------------------')\n",
+    "    for link in item.find_all('a'):\n",
+    "        link = (link.get('href'))\n",
+    "    name = (item.select('.ProductCard-name')[0].get_text().strip())\n",
+    "    print(item.select('.ProductCard-price--listPrice')[0].get_text().strip())\n",
+    "    price = (item.select('.ProductCard-price--listPrice')[0].get_text().strip())\n",
+    "    print(item.select('.ProductCard-price')[0].get_text().strip())\n",
+    "    print(item.select('.pl-ReviewStars-reviews')[0].get_text().strip())\n",
+    "    review = (item.select('.pl-VisuallyHidden')[2].get_text().strip())\n",
+    "    image = (item.select('.pl-FluidImage-image')[0]['src'])\n",
+    "    dictionary = {'name': str(name), 'price': str(price), 'rating': str(review),'url': str(link), 'image': str(image)}\n",
+    "    data.append(dictionary)\n",
+    "   except Exception as e:\n",
+    "    #raises e\n",
+    "    print('')\n",
+    "    continue\n",
+    "df = pd.DataFrame(data)\n",
+    "print(df)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "01e1afd7",
+   "metadata": {},
+   "source": [
+    "\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "be74027e",
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.8.8"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
